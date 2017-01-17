@@ -104,18 +104,18 @@ fi
 
 echo "Waehle einen der Server aus, um dich zu verbinden:"
 
-#        cat ~/bin/IP-Adressen.txt
+        cat ~/bin/IP-Adressen.txt
 
 echo "Oder gib eine eigene IP an um einen neuen Server einzutragen"
 
 #Eingabe durch Nutzer
 
-select SERVER in $(cat ~/bin/IP-Adressen.txt | cut -d= -f1)
+select SERVER in ip-eingeben $(cat ~/bin/IP-Adressen.txt | cut -d= -f1)
  do
         break
  done
 
-        #read SERVER
+        read SERVER
 
 #Falls eine IP-Adresse eingegeben wurde.
 if [[ $SERVER =~ ^[0-9]+ ]]; then
