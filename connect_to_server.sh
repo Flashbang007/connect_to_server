@@ -2,7 +2,7 @@
 
 ########################################################
 #               ssh login auf Teles-Maschienen         #
-#                       Vesion 1.2                     #
+#                       Vesion 1.4                     #
 #                       Autor: act                     #
 #                                                      #
 #                                                      #
@@ -102,23 +102,25 @@ fi
 
 #Ausgabe der Auswahl
 
-echo "Waehle einen der Server aus, um dich zu verbinden:"
+echo "Gib eins der Folgenden Kuerzel ein, um dich zu Verbinden:"
 
-        #cat ~/bin/IP-Adressen.txt
+#        cat ~/bin/IP-Adressen.txt
 
 echo "Oder gib eine eigene IP an um einen neuen Server einzutragen"
 
 #Eingabe durch Nutzer
 
-select SERVER in ip-eingeben $(cat ~/bin/IP-Adressen.txt | cut -d= -f1)
+select SERVER in Neuer-Server $(cat ~/bin/IP-Adressen.txt | cut -d= -f1)
  do
         break
  done
 
-        read SERVER
 
-#Falls eine IP-Adresse eingegeben wurde.
-if [[ $SERVER =~ ^[0-9]+ ]]; then
+if [[ $SERVER = "Neuer-Server"  ]]; then
+echo "gib eine IP Adresse an:"
+        read SERVER
+ #Falls eine IP-Adresse eingegeben wurde.
+ if [[ $SERVER =~ ^[0-9]+ ]]; then
 
 
         neue_ip
@@ -127,8 +129,15 @@ exit 0
 
  else
 
-#Verbinden zu den Servern
+ #Verbinden zu den Servern
+
+        . ~/bin/verbinden.txt
+
+ fi
+else
 
         . ~/bin/verbinden.txt
 
 fi
+
+exit 0
