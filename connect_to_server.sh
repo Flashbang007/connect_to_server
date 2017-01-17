@@ -103,7 +103,7 @@ echo "Oder gib eine eigene IP an um einen neuen Server einzutragen"
 
         read SERVER
 
-#Falls eine IP-Adresse eingegeben wurde.
+##Falls eine IP-Adresse eingegeben wurde.
 if [[ $SERVER =~ ^[0-9]+ ]]; then
 
 
