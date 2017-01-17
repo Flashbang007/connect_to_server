@@ -11,16 +11,8 @@
 
 #!/bin/bash
 
-neue_ip(){
-
-echo "gib den Namen des neuen Servers an"
-read SERVERNAME
-
-echo "gib einen Nutzer fuer den Server an"
-read USER
-
-echo "$SERVERNAME=$SERVER=als=$USER" >> ~/bin/IP-Adressen.txt
-
+##################################
+verbinden_aktualisieren(){
 echo "case \"\$SERVER\" in" > ~/bin/verbinden.txt
 
 #Schleife, welche den Server zur Liste hinzufuegt
@@ -47,6 +39,22 @@ echo "         *)
                 echo \"\$SERVER nicht gefunden\"
         exit 1
 esac" >> ~/bin/verbinden.txt
+}
+#####################################
+
+
+neue_ip(){
+
+echo "gib den Namen des neuen Servers an"
+read SERVERNAME
+
+echo "gib einen Nutzer fuer den Server an"
+read USER
+
+echo "$SERVERNAME=$SERVER=als=$USER" >> ~/bin/IP-Adressen.txt
+#####################################
+verbinden_aktualisieren
+#####################################
 
 LINE=$(tail -n1 ~/bin/IP-Adressen.txt)
 
@@ -90,6 +98,7 @@ fi
 #Festlegen der IP-Addressen#
 
         . ~/bin/IP-Adressen.txt
+        verbinden_aktualisieren
 
 #Ausgabe der Auswahl
 
@@ -101,7 +110,12 @@ echo "Oder gib eine eigene IP an um einen neuen Server einzutragen"
 
 #Eingabe durch Nutzer
 
-        read SERVER
+select SERVER in $(cat ~/bin/IP-Adressen.txt | cut -d= -f1)
+ do
+        break
+ done
+
+        #read SERVER
 
 #Falls eine IP-Adresse eingegeben wurde.
 if [[ $SERVER =~ ^[0-9]+ ]]; then
