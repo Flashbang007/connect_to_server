@@ -30,7 +30,7 @@ for i in `cat $DIR/$IPFILE`
 
 echo "        $SERVERNAME)
                 echo \"Verbinde zu $SERVERNAME IP: $SERVER\"
-                ssh $USER@$SERVER
+                ssh -X $USER@$SERVER
         exit 0
         ;;
 
@@ -78,12 +78,12 @@ if [[ $SSHKEY = y ]] ; then
         ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@$SERVER
 
         echo "Verbinde zu $SERVERNAME als $USER"
-        ssh $USER@$SERVER
+        ssh -X $USER@$SERVER
 
  else
 
         echo "Verbinde zu $SERVERNAME als $USER"
-        ssh $USER@$SERVER
+        ssh -X $USER@$SERVER
 
 fi
 
