@@ -1,22 +1,25 @@
 #!/bin/bash
 
 ########################################################
-#               ssh login auf Teles-Maschienen         #
-#                       Vesion 1.4                     #
+#                  ssh login auf Servern               #
+#                       Vesion 1.3                     #
 #                       Autor: act                     #
 #                                                      #
 #                                                      #
 #               Befehl: connect_to_server.sh           #
 ########################################################
 
-#!/bin/bash
+HOMEDIR=~
+DIR="$HOMEDIR/bin"
+IPFILE="IP-Adressen.txt"
+VERBINDENFILE="verbinden.txt"
 
 ##################################
 verbinden_aktualisieren(){
-echo "case \"\$SERVER\" in" > ~/bin/verbinden.txt
+echo "case \"\$SERVER\" in" > $DIR/$VERBINDENFILE
 
 #Schleife, welche den Server zur Liste hinzufuegt
-for i in `cat ~/bin/IP-Adressen.txt`
+for i in `cat $DIR/$IPFILE`
  do
 
         SERVER=$( echo "$i" | cut -d= -f2 )
@@ -31,19 +34,23 @@ echo "        $SERVERNAME)
         exit 0
         ;;
 
-" >> ~/bin/verbinden.txt
+" >> $DIR/$VERBINDENFILE
 
  done
 
 echo "         *)
                 echo \"\$SERVER nicht gefunden\"
         exit 1
-esac" >> ~/bin/verbinden.txt
+esac" >> $DIR/$VERBINDENFILE
 }
 #####################################
 
-
 neue_ip(){
+
+echo "gib eine IP Adresse an:"
+        read SERVER
+ #Falls eine IP-Adresse eingegeben wurde.
+ if [[ $SERVER =~ ^[0-9]+ ]]; then
 
 echo "gib den Namen des neuen Servers an"
 read SERVERNAME
@@ -51,12 +58,12 @@ read SERVERNAME
 echo "gib einen Nutzer fuer den Server an"
 read USER
 
-echo "$SERVERNAME=$SERVER=als=$USER" >> ~/bin/IP-Adressen.txt
+echo "$SERVERNAME=$SERVER=als=$USER" >> $DIR/$IPFILE
 #####################################
 verbinden_aktualisieren
 #####################################
 
-LINE=$(tail -n1 ~/bin/IP-Adressen.txt)
+LINE=$(tail -n1 $DIR/$IPFILE)
 
         SERVER=$( echo "$LINE" | cut -d= -f2 )
         SERVERNAME=$( echo "$LINE" | cut -d= -f1)
@@ -80,64 +87,76 @@ if [[ $SSHKEY = y ]] ; then
 
 fi
 
-}
-
-
-if [[ ! -f ~/bin/IP-Adressen.txt ]]
-then
-    touch ~/bin/IP-Adressen.txt
-    chmod 664 ~/bin/IP-Adressen.txt
+else
+ #Verbinden zu den Servern
+        . $DIR/$VERBINDENFILE
 fi
 
-if [[ ! -f ~/bin/verbinden.txt ]]
+}
+#######################################
+
+ip_loeschen() {
+
+cat $DIR/$IPFILE
+echo ""
+echo "Gib den Namen des Servers ein, den du loeschen moechtest"
+
+read DELETESERVER
+if [[ $(grep $DELETESERVER $DIR/$IPFILE)  ]]; then
+
+        sed -i "/^$DELETESERVER/d" $DIR/$IPFILE
+
+        echo " $DELETESERVER wurde entfernt"
+
+else
+
+        echo " $DELETESERVER nicht gefunden"
+        exit 9
+fi
+exit 0
+
+}
+#######################################
+#######################################
+if [[ ! -f $DIR/$IPFILE ]]
 then
-    touch ~/bin/verbinden.txt
-    chmod 664 ~/bin/verbinden.txt
+    touch $DIR/$IPFILE
+    chmod 664 $DIR/$IPFILE
+fi
+
+if [[ ! -f $DIR/$VERBINDENFILE ]]
+then
+    touch $DIR/$VERBINDENFILE
+    chmod 664 $DIR/$VERBINDENFILE
 fi
 
 #Festlegen der IP-Addressen#
 
-        . ~/bin/IP-Adressen.txt
+        . $DIR/$IPFILE
         verbinden_aktualisieren
 
 #Ausgabe der Auswahl
 
 echo "Gib eins der Folgenden Kuerzel ein, um dich zu Verbinden:"
 
-#        cat ~/bin/IP-Adressen.txt
+#        cat $DIR/$IPFILE
 
 echo "Oder gib eine eigene IP an um einen neuen Server einzutragen"
 
 #Eingabe durch Nutzer
 
-select SERVER in Neuer-Server $(cat ~/bin/IP-Adressen.txt | cut -d= -f1)
+select SERVER in Neuer-Server $(cat $DIR/$IPFILE | cut -d= -f1) Server-loeschen
  do
         break
  done
 
 
 if [[ $SERVER = "Neuer-Server"  ]]; then
-echo "gib eine IP Adresse an:"
-        read SERVER
- #Falls eine IP-Adresse eingegeben wurde.
- if [[ $SERVER =~ ^[0-9]+ ]]; then
-
-
         neue_ip
-
-exit 0
-
- else
-
- #Verbinden zu den Servern
-
-        . ~/bin/verbinden.txt
-
- fi
+elif [[ $SERVER = "Server-loeschen" ]]; then
+        ip_loeschen
 else
-
-        . ~/bin/verbinden.txt
-
+        . $DIR/$VERBINDENFILE
 fi
 
 exit 0
