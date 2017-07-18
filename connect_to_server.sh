@@ -137,11 +137,7 @@ fi
 
 #Ausgabe der Auswahl
 
-echo "Gib eins der Folgenden Kuerzel ein, um dich zu Verbinden:"
-
-#        cat $DIR/$IPFILE
-
-echo "Oder gib eine eigene IP an um einen neuen Server einzutragen"
+echo "Waehle per eingabe der Zahl den Server, zu dem du dich verbinden moechtest:"
 
 #Eingabe durch Nutzer
 
