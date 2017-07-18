@@ -1,30 +1,25 @@
 #!/bin/bash
 
 ########################################################
-#               ssh login auf Teles-Maschienen         #
-#                       Vesion 1.2                     #
+#                  ssh login auf Servern               #
+#                       Vesion 1.3                     #
 #                       Autor: act                     #
 #                                                      #
 #                                                      #
 #               Befehl: connect_to_server.sh           #
 ########################################################
 
-#!/bin/bash
+HOMEDIR=~
+DIR="$HOMEDIR/bin"
+IPFILE="IP-Adressen.txt"
+VERBINDENFILE="verbinden.txt"
 
-neue_ip(){
-
-echo "gib den Namen des neuen Servers an"
-read SERVERNAME
-
-echo "gib einen Nutzer fuer den Server an"
-read USER
-
-echo "$SERVERNAME=$SERVER=als=$USER" >> ~/bin/IP-Adressen.txt
-
-echo "case \"\$SERVER\" in" > ~/bin/verbinden.txt
+##################################
+verbinden_aktualisieren(){
+echo "case \"\$SERVER\" in" > $DIR/$VERBINDENFILE
 
 #Schleife, welche den Server zur Liste hinzufuegt
-for i in `cat ~/bin/IP-Adressen.txt`
+for i in `cat $DIR/$IPFILE`
  do
 
         SERVER=$( echo "$i" | cut -d= -f2 )
@@ -35,20 +30,40 @@ for i in `cat ~/bin/IP-Adressen.txt`
 
 echo "        $SERVERNAME)
                 echo \"Verbinde zu $SERVERNAME IP: $SERVER\"
-                ssh $USER@$SERVER
+                ssh -X $USER@$SERVER
         exit 0
         ;;
 
-" >> ~/bin/verbinden.txt
+" >> $DIR/$VERBINDENFILE
 
  done
 
 echo "         *)
                 echo \"\$SERVER nicht gefunden\"
         exit 1
-esac" >> ~/bin/verbinden.txt
+esac" >> $DIR/$VERBINDENFILE
+}
+#####################################
 
-LINE=$(tail -n1 ~/bin/IP-Adressen.txt)
+neue_ip(){
+
+echo "gib eine IP Adresse an:"
+        read SERVER
+ #Falls eine IP-Adresse eingegeben wurde.
+ if [[ $SERVER =~ ^[0-9]+ ]]; then
+
+echo "gib den Namen des neuen Servers an"
+read SERVERNAME
+
+echo "gib einen Nutzer fuer den Server an"
+read USER
+
+echo "$SERVERNAME=$SERVER=als=$USER" >> $DIR/$IPFILE
+#####################################
+verbinden_aktualisieren
+#####################################
+
+LINE=$(tail -n1 $DIR/$IPFILE)
 
         SERVER=$( echo "$LINE" | cut -d= -f2 )
         SERVERNAME=$( echo "$LINE" | cut -d= -f1)
@@ -63,58 +78,81 @@ if [[ $SSHKEY = y ]] ; then
         ssh-copy-id -i ~/.ssh/id_rsa.pub $USER@$SERVER
 
         echo "Verbinde zu $SERVERNAME als $USER"
-        ssh $USER@$SERVER
+        ssh -X $USER@$SERVER
 
  else
 
         echo "Verbinde zu $SERVERNAME als $USER"
-        ssh $USER@$SERVER
+        ssh -X $USER@$SERVER
 
+fi
+
+else
+ #Verbinden zu den Servern
+        . $DIR/$VERBINDENFILE
 fi
 
 }
+#######################################
 
+ip_loeschen() {
 
-if [[ ! -f ~/bin/IP-Adressen.txt ]]
+cat $DIR/$IPFILE
+echo ""
+echo "Gib den Namen des Servers ein, den du loeschen moechtest"
+
+read DELETESERVER
+if [[ $(grep $DELETESERVER $DIR/$IPFILE)  ]]; then
+
+        sed -i "/^$DELETESERVER/d" $DIR/$IPFILE
+
+        echo " $DELETESERVER wurde entfernt"
+
+else
+
+        echo " $DELETESERVER nicht gefunden"
+        exit 9
+fi
+exit 0
+
+}
+#######################################
+#######################################
+if [[ ! -f $DIR/$IPFILE ]]
 then
-    touch ~/bin/IP-Adressen.txt
-    chmod 664 ~/bin/IP-Adressen.txt
+    touch $DIR/$IPFILE
+    chmod 664 $DIR/$IPFILE
 fi
 
-if [[ ! -f ~/bin/verbinden.txt ]]
+if [[ ! -f $DIR/$VERBINDENFILE ]]
 then
-    touch ~/bin/verbinden.txt
-    chmod 664 ~/bin/verbinden.txt
+    touch $DIR/$VERBINDENFILE
+    chmod 664 $DIR/$VERBINDENFILE
 fi
 
 #Festlegen der IP-Addressen#
 
-        . ~/bin/IP-Adressen.txt
+        . $DIR/$IPFILE
+        verbinden_aktualisieren
 
 #Ausgabe der Auswahl
 
-echo "Gib eins der Folgenden Kuerzel ein, um dich zu Verbinden:"
-
-        cat ~/bin/IP-Adressen.txt
-
-echo "Oder gib eine eigene IP an um einen neuen Server einzutragen"
+echo "Waehle per eingabe der Zahl den Server, zu dem du dich verbinden moechtest:"
 
 #Eingabe durch Nutzer
 
-        read SERVER
+select SERVER in Neuer-Server $(cat $DIR/$IPFILE | cut -d= -f1) Server-loeschen
+ do
+        break
+ done
 
-##Falls eine IP-Adresse eingegeben wurde.
-if [[ $SERVER =~ ^[0-9]+ ]]; then
 
-
+if [[ $SERVER = "Neuer-Server"  ]]; then
         neue_ip
+elif [[ $SERVER = "Server-loeschen" ]]; then
+        ip_loeschen
+else
+        . $DIR/$VERBINDENFILE
+fi
 
 exit 0
-
- else
-
-#Verbinden zu den Servern
-
-        . ~/bin/verbinden.txt
-
-fi
