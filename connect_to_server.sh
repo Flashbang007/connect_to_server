@@ -2,7 +2,7 @@
 
 ########################################################
 #                  ssh login auf Servern               #
-#                       Vesion 1.3                     #
+#                       Vesion 1.4                     #
 #                       Autor: act                     #
 #                                                      #
 #                                                      #
@@ -117,7 +117,14 @@ exit 0
 
 }
 #######################################
+show_server() {
+
+cat $DIR/$IPFILE | column -s "=" -t
+exit 0
+}
 #######################################
+#######################################
+# Dateien erstellen
 if [[ ! -f $DIR/$IPFILE ]]
 then
     touch $DIR/$IPFILE
@@ -125,10 +132,16 @@ then
 fi
 
 if [[ ! -f $DIR/$VERBINDENFILE ]]
-then
+ then
     touch $DIR/$VERBINDENFILE
     chmod 664 $DIR/$VERBINDENFILE
-fi
+ fi
+
+#Option, um die IP Adressen anzuzeigen
+if [[ $1 = "-f"  ]]
+ then
+        show_server
+ fi
 
 #Festlegen der IP-Addressen#
 
