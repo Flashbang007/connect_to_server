@@ -154,13 +154,15 @@ echo "Waehle per eingabe der Zahl den Server, zu dem du dich verbinden moechtest
 
 #Eingabe durch Nutzer
 
-select SERVER in Neuer-Server $(cat $DIR/$IPFILE | cut -d= -f1) Server-loeschen
+select SERVER in Neuer-Server $(cat $DIR/$IPFILE | cut -d= -f1) Zeige-IPs Server-loeschen
  do
         break
  done
 
 
-if [[ $SERVER = "Neuer-Server"  ]]; then
+if [[ $SERVER = "Zeige-IPs"  ]]; then
+        show_server
+elif [[ $SERVER = "Neuer-Server"  ]]; then
         neue_ip
 elif [[ $SERVER = "Server-loeschen" ]]; then
         ip_loeschen
