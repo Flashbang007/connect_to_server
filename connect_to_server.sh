@@ -9,6 +9,8 @@
 #               Befehl: connect_to_server.sh           #
 ########################################################
 
+SCRIPTNAME="`basename \"$0\"`"
+SCRIPTPATH="`dirname \"$0\"`"
 HOMEDIR=~
 DIR="$HOMEDIR/bin"
 IPFILE="IP-Adressen.txt"
@@ -120,6 +122,7 @@ exit 0
 show_server() {
 
 cat $DIR/$IPFILE | column -s "=" -t
+$SCRIPTPATH/$SCRIPTNAME
 exit 0
 }
 #######################################
